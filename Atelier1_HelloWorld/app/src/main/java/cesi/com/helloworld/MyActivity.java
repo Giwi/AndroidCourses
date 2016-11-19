@@ -14,7 +14,7 @@ import android.widget.TextView;
 import cesi.com.helloworld.helper.NetworkHelper;
 
 /**
- * Created by sca on 29/05/15.
+ * The type My activity.
  */
 public class MyActivity extends Activity{
 
@@ -23,6 +23,11 @@ public class MyActivity extends Activity{
     Button button;
     ProgressDialog progressDialog;
 
+    /**
+     * On create.
+     *
+     * @param savedInstanceBundle the saved instance bundle
+     */
     @Override
     public void onCreate(Bundle savedInstanceBundle){
         super.onCreate(savedInstanceBundle);
@@ -30,7 +35,7 @@ public class MyActivity extends Activity{
         setContentView(R.layout.activity_hello);
         textView = (TextView)findViewById(R.id.texview);
         editText = (EditText)findViewById(R.id.edittext);
-        ((Button)findViewById(R.id.button)).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //do my request
@@ -47,7 +52,6 @@ public class MyActivity extends Activity{
      */
     private void displayProgressDialog() {
         progressDialog =  new ProgressDialog(MyActivity.this);
-
         progressDialog.setTitle("Loading ...");
         progressDialog.setMessage("hello in progress ...");
         progressDialog.show();
@@ -64,14 +68,28 @@ public class MyActivity extends Activity{
         }
     }
 
+    /**
+     * The type Hello async task.
+     */
     public class HelloAsyncTask extends AsyncTask<String, Void, String>{
 
         Context context;
 
-        public HelloAsyncTask(final Context context){
+        /**
+         * Instantiates a new Hello async task.
+         *
+         * @param context the context
+         */
+        HelloAsyncTask(final Context context){
             this.context = context;
         }
 
+        /**
+         * Do in background string.
+         *
+         * @param params the params
+         * @return the string
+         */
         @Override
         protected String doInBackground(String... params) {
             if(!NetworkHelper.isInternetAvailable(context)){
@@ -80,6 +98,11 @@ public class MyActivity extends Activity{
             return NetworkHelper.connect(params[0]);
         }
 
+        /**
+         * On post execute.
+         *
+         * @param s the s
+         */
         @Override
         protected void onPostExecute(final String s) {
             hideProgressDialog();

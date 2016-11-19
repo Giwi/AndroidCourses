@@ -8,13 +8,18 @@ import android.widget.Button;
 import android.widget.TextView;
 
 /**
- * Created by sca on 27/05/15.
+ * The type Main activity.
  */
 public class MainActivity extends Activity {
 
     Button button;
     TextView text;
 
+    /**
+     * On create.
+     *
+     * @param savedInstance the saved instance
+     */
     @Override
     public void onCreate(final Bundle savedInstance){
         super.onCreate(savedInstance);
