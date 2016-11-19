@@ -13,15 +13,20 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 
 /**
- * Created by sca on 29/05/15.
+ * The type Network helper.
  */
 public class NetworkHelper {
 
 
+    /**
+     * Is internet available boolean.
+     *
+     * @param context the context
+     * @return the boolean
+     */
     public static boolean isInternetAvailable(Context context) {
         try {
-            ConnectivityManager cm
-                    = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
@@ -33,13 +38,18 @@ public class NetworkHelper {
         return true;
     }
 
-    // Reads an InputStream and converts it to a String.
-    public static String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(stream));
+    /**
+     * Read it string.
+     *
+     * @param stream the stream
+     * @return the string
+     * @throws IOException the io exception
+     */
+// Reads an InputStream and converts it to a String.
+    public static String readIt(InputStream stream) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(stream));
         String inputLine;
-        StringBuffer response = new StringBuffer();
-
+        StringBuilder response = new StringBuilder();
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
         }

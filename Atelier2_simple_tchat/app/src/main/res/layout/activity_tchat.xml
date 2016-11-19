@@ -1,31 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <ImageButton
+        android:id="@+id/tchat_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_send"
-        android:id="@+id/tchat_send"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"/>
+        android:src="@android:drawable/ic_menu_send" />
+
     <EditText
+        android:id="@+id/tchat_msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/tchat_msg"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/tchat_send"/>
+        android:layout_toLeftOf="@+id/tchat_send" />
 
-   <!-- <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swiperefresh"
+    <ListView
+        android:id="@+id/tchat_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">-->
+        android:layout_height="match_parent"
+        android:layout_above="@+id/tchat_send"
+        android:stackFromBottom="true" />
 
-        <ListView
-            android:id="@+id/tchat_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:stackFromBottom="true"
-            android:layout_above="@+id/tchat_send" />
-
-    <!--</android.support.v4.widget.SwipeRefreshLayout>-->
 </RelativeLayout>

@@ -11,34 +11,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
-import cesi.com.tchatapp.helper.JsonParser;
 import cesi.com.tchatapp.helper.NetworkHelper;
 import cesi.com.tchatapp.utils.Constants;
 
 /**
- * Created by sca on 02/06/15.
+ * The type Signin activity.
  */
 public class SigninActivity extends Activity {
 
@@ -46,10 +33,15 @@ public class SigninActivity extends Activity {
     EditText pwd;
     ProgressBar pg;
     Button btn;
-    View v ;
+    View v;
 
+    /**
+     * On create.
+     *
+     * @param savedInstance the saved instance
+     */
     @Override
-    public void onCreate(Bundle savedInstance){
+    public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
         setContentView(R.layout.activity_signin);
         v = findViewById(R.id.layout);
@@ -75,7 +67,7 @@ public class SigninActivity extends Activity {
     }
 
     private void loading(boolean loading) {
-        if(loading){
+        if (loading) {
             pg.setVisibility(View.VISIBLE);
             btn.setVisibility(View.INVISIBLE);
         } else {
@@ -87,56 +79,60 @@ public class SigninActivity extends Activity {
     /**
      * AsyncTask for sign-in
      */
-    protected class SigninAsyncTask extends AsyncTask<String, Void, String>{
-
+    protected class SigninAsyncTask extends AsyncTask<String, Void, String> {
         Context context;
-
-        public SigninAsyncTask(final Context context) {
+        /**
+         * Instantiates a new Signin async task.
+         *
+         * @param context the context
+         */
+        SigninAsyncTask(final Context context) {
             this.context = context;
         }
 
+        /**
+         * Do in background string.
+         *
+         * @param params the params
+         * @return the string
+         */
         @Override
         protected String doInBackground(String... params) {
-            if(!NetworkHelper.isInternetAvailable(context)){
+            if (!NetworkHelper.isInternetAvailable(context)) {
                 return null;
             }
-
             // Un stream pour récevoir la réponse
             InputStream inputStream = null;
-
             try {
                 URL url = new URL(context.getString(R.string.url_signin));
                 Log.d("Calling URL", url.toString());
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-                String urlParameters = "username="+params[0]+"&pwd="+params[1];
-
-
+                JSONObject login = new JSONObject()
+                        .put("username", params[0])
+                        .put("password", params[1]);
                 conn.setReadTimeout(10000 /* milliseconds */);
                 conn.setConnectTimeout(15000 /* milliseconds */);
                 conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 conn.setDoInput(true);
                 conn.setDoOutput(true);
                 // Starts the query
                 // Send post request
                 conn.setDoOutput(true);
                 DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-                wr.writeBytes(urlParameters);
+                wr.writeBytes(login.toString());
                 wr.flush();
                 wr.close();
-
                 int response = conn.getResponseCode();
                 Log.d("NetworkHelper", "The response code is: " + response);
-
                 inputStream = conn.getInputStream();
                 String contentAsString = null;
-                if(response == 200) {
+                if (response == 200) {
                     // Convert the InputStream into a string
                     contentAsString = NetworkHelper.readIt(inputStream);
-                    return JsonParser.getToken(contentAsString);
+                    return contentAsString;
                 }
                 return contentAsString;
-
                 // Makes sure that the InputStream is closed after the app is
                 // finished using it.
             } catch (Exception e) {
@@ -153,13 +149,25 @@ public class SigninActivity extends Activity {
             }
         }
 
+        /**
+         * On post execute.
+         *
+         * @param secureToken the secureToken
+         */
         @Override
-        public void onPostExecute(final String token){
+        public void onPostExecute(final String secureToken) {
             loading(false);
-            if(token != null){
+            if (secureToken != null) {
                 Intent i = new Intent(context, TchatActivity.class);
-                i.putExtra(Constants.INTENT_TOKEN, token);
-                startActivity(i);
+                try {
+                    JSONObject resp = new JSONObject(secureToken);
+                    Log.i(Constants.TAG, secureToken);
+                    i.putExtra(Constants.INTENT_TOKEN, resp.getString("secureToken"));
+                    i.putExtra(Constants.INTENT_USER_ID, resp.getString("user_id"));
+                    startActivity(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             } else {
                 Snackbar.make(v, context.getString(R.string.error_login), Snackbar.LENGTH_LONG).setAction("btn", new View.OnClickListener() {
 
