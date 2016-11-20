@@ -19,23 +19,40 @@ import cesi.com.tchatapp.helper.DateHelper;
 import cesi.com.tchatapp.model.Message;
 
 /**
- * Created by sca on 02/06/15.
+ * The type Messages adapter.
  */
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
 
   private final Context context;
 
+  /**
+   * Instantiates a new Messages adapter.
+   *
+   * @param ctx the ctx
+   */
   public MessagesAdapter(Context ctx) {
     this.context = ctx;
   }
 
   List<Message> messages = new LinkedList<>();
 
+  /**
+   * Add message.
+   *
+   * @param messages the messages
+   */
   public void addMessage(List<Message> messages) {
     this.messages = messages;
     this.notifyDataSetChanged();
   }
 
+  /**
+   * On create view holder messages adapter . view holder.
+   *
+   * @param parent the parent
+   * @param i      the
+   * @return the messages adapter . view holder
+   */
   @Override
   public MessagesAdapter.ViewHolder onCreateViewHolder(final ViewGroup parent, final int i) {
     LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -44,6 +61,12 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     return vh;
   }
 
+  /**
+   * On bind view holder.
+   *
+   * @param vh       the vh
+   * @param position the position
+   */
   @Override
   public void onBindViewHolder(final MessagesAdapter.ViewHolder vh, final int position) {
     vh.username.setText(messages.get(position).getUsername());
@@ -55,11 +78,22 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     }
   }
 
+  /**
+   * Gets item id.
+   *
+   * @param position the position
+   * @return the item id
+   */
   @Override
   public long getItemId(int position) {
     return position;
   }
 
+  /**
+   * Gets item count.
+   *
+   * @return the item count
+   */
   @Override
   public int getItemCount() {
     if (messages == null) {
@@ -69,11 +103,19 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
   }
 
 
+  /**
+   * The type View holder.
+   */
   public static class ViewHolder extends RecyclerView.ViewHolder{
     TextView username;
     TextView message;
     TextView date;
 
+    /**
+     * Instantiates a new View holder.
+     *
+     * @param itemView the item view
+     */
     public ViewHolder(final View itemView) {
       super(itemView);
       username = (TextView) itemView.findViewById(R.id.msg_user);

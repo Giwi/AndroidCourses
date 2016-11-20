@@ -10,5 +10,3 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true" />
 </android.support.v4.widget.SwipeRefreshLayout>
-
-

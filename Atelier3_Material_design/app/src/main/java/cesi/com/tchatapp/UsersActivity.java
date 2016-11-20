@@ -4,28 +4,27 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.net.URI;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import cesi.com.tchatapp.helper.JsonParser;
 import cesi.com.tchatapp.helper.NetworkHelper;
 import cesi.com.tchatapp.utils.Constants;
 
 /**
- * Created by sca on 08/07/15.
+ * The type Users activity.
  */
 public class UsersActivity extends Activity {
 
@@ -34,24 +33,33 @@ public class UsersActivity extends Activity {
     String token = null;
     private SwipeRefreshLayout swipeLayout;
 
+    /**
+     * On create.
+     *
+     * @param savedInstace the saved instace
+     */
     @Override
-    public void onCreate(Bundle savedInstace){
+    public void onCreate(Bundle savedInstace) {
         super.onCreate(savedInstace);
         setContentView(R.layout.activity_users);
         token = getIntent().getExtras().getString(Constants.INTENT_TOKEN);
         list = (ListView) findViewById(R.id.list);
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new LinkedList<String>());
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new LinkedList<String>());
         list.setAdapter(adapter);
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.users_swiperefresh);
         setupRefreshLayout();
     }
 
 
+    /**
+     * On resume.
+     */
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         loading();
     }
+
     private void loading() {
         swipeLayout.setRefreshing(true);
         new GetUsersAsyncTask().execute();
@@ -98,43 +106,72 @@ public class UsersActivity extends Activity {
      */
     protected class GetUsersAsyncTask extends AsyncTask<String, Void, List<String>> {
 
+        /**
+         * Do in background list.
+         *
+         * @param params the params
+         * @return the list
+         */
         @Override
         protected List<String> doInBackground(String... params) {
-            if(!NetworkHelper.isInternetAvailable(UsersActivity.this)){
+            if (!NetworkHelper.isInternetAvailable(UsersActivity.this)) {
                 return null;
             }
 
-            try {
-                //then create an httpClient.
-                HttpClient client = new DefaultHttpClient();
-                HttpGet request = new HttpGet();
-                request.setURI(URI.create(UsersActivity.this.getString(R.string.url_users)));
-                request.setHeader("token", token);
-                // do request.
-                HttpResponse httpResponse = client.execute(request);
-                String response = null;
+            InputStream inputStream = null;
 
-                //Store response
-                if (httpResponse.getEntity() != null) {
-                    response = EntityUtils.toString(httpResponse.getEntity());
+            try {
+                URL url = new URL(UsersActivity.this.getString(R.string.url_users));
+                Log.d("Calling URL", url.toString());
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                //set authorization header
+                conn.setRequestProperty("X-secure-Token", token);
+                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                int response = conn.getResponseCode();
+                Log.d("TchatActivity", "The response code is: " + response);
+
+                inputStream = conn.getInputStream();
+                String contentAsString;
+                if (response == 200) {
+                    List<String> listOfUsers = new ArrayList<>();
+                    // Convert the InputStream into a string
+                    contentAsString = NetworkHelper.readIt(inputStream);
+                    JSONArray users = new JSONArray(contentAsString);
+                    for (int i = 0; i < users.length(); i++) {
+                        JSONObject u = users.getJSONObject(i);
+                        listOfUsers.add(u.getString("username"));
+                    }
+                    return listOfUsers;
                 }
-                Log.d(Constants.TAG, "received for url: " + request.getURI() + " return code: " + httpResponse
-                        .getStatusLine()
-                        .getStatusCode());
-                if(httpResponse.getStatusLine().getStatusCode() != 200){
-                    //error happened
-                    return null;
-                }
-                return JsonParser.getUsers(response);
-            } catch (Exception e){
-                Log.d(Constants.TAG, "Error occured in your AsyncTask : ", e);
                 return null;
+                // Makes sure that the InputStream is closed after the app is
+                // finished using it.
+            } catch (Exception e) {
+                Log.e("NetworkHelper", e.getMessage());
+                return null;
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Log.e("NetworkHelper", e.getMessage());
+                    }
+                }
             }
         }
 
+        /**
+         * On post execute.
+         *
+         * @param users the users
+         */
         @Override
-        public void onPostExecute(final List<String> users){
-            if (users != null){
+        public void onPostExecute(final List<String> users) {
+            if (users != null) {
                 adapter.clear();
                 adapter.addAll(users);
             }
