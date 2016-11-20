@@ -120,7 +120,7 @@ public class SigninActivity extends Activity {
                 // Send post request
                 conn.setDoOutput(true);
                 DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-                wr.writeBytes(login.toString());
+                wr.write(login.toString().getBytes("UTF-8"));
                 wr.flush();
                 wr.close();
                 int response = conn.getResponseCode();

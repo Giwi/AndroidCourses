@@ -156,7 +156,7 @@ public class TchatActivity extends ActionBarActivity {
                 // Send post request
                 conn.setDoOutput(true);
                 DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-                wr.writeBytes(message.toString());
+                wr.write(message.toString().getBytes("UTF-8"));
                 wr.flush();
                 wr.close();
                 return conn.getResponseCode();
