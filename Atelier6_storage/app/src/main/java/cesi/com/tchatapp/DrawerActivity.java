@@ -11,7 +11,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -24,12 +26,17 @@ import cesi.com.tchatapp.fragment.WriteMsgDialog;
 import cesi.com.tchatapp.session.Session;
 
 /**
- * Created by sca on 06/06/15.
+ * The type Drawer activity.
  */
 public class DrawerActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
 
+    /**
+     * On create.
+     *
+     * @param savedInstanceState the saved instance state
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,39 +44,42 @@ public class DrawerActivity extends AppCompatActivity {
 
 
         final ActionBar ab = getSupportActionBar();
-        if(ab != null) {
+        if (ab != null) {
             ab.setHomeAsUpIndicator(R.mipmap.ic_launcher);
             ab.setDisplayHomeAsUpEnabled(true);
         }
 
-        if(!isLarge()) {
+        if (!isLarge()) {
             mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
             ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
             if (viewPager != null) {
-                setupViewPager(viewPager);
+                Adapter adapter = new Adapter(getSupportFragmentManager());
+                adapter.addFragment(new MessagesFragment(), "Messages");
+                adapter.addFragment(new UsersFragment(), "Users");
+                viewPager.setAdapter(adapter);
             }
             TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
             tabLayout.setupWithViewPager(viewPager);
-        }
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        if (navigationView != null) {
-            setupNavigationView(navigationView);
-        }
 
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            if (navigationView != null) {
+                setupNavigationView(navigationView);
+            }
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            mDrawerLayout.setDrawerListener(toggle);
+            toggle.syncState();
+        }
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                WriteMsgDialog.getInstance(Session.token).show(DrawerActivity.this.getFragmentManager(), "write");
-
+                WriteMsgDialog.getInstance(Session.token, Session.userId).show(DrawerActivity.this.getFragmentManager(), "write");
             }
         });
     }
 
-    /**
-     * Setup pager.
-     * @param viewPager
-     */
     private void setupViewPager(ViewPager viewPager) {
         Adapter adapter = new Adapter(getSupportFragmentManager());
         adapter.addFragment(new MessagesFragment(), "Messages");
@@ -77,10 +87,6 @@ public class DrawerActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
-    /**
-     * setup drawer.
-     * @param navigationView
-     */
     private void setupNavigationView(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
@@ -98,40 +104,72 @@ public class DrawerActivity extends AppCompatActivity {
                 });
     }
 
-
+    /**
+     * Is large boolean.
+     *
+     * @return the boolean
+     */
     public boolean isLarge(){
         int size = getResources().getConfiguration().screenLayout;
-        if ((size & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE ||
-                (size & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE){
-            return true;
-        }
-        return false;
+        return (size & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_LARGE ||
+                (size & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
 
+    /**
+     * The type Adapter.
+     */
     static class Adapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragments = new ArrayList<Fragment>();
         private final List<String> mFragmentTitles = new ArrayList<String>();
 
-        public Adapter(FragmentManager fm) {
+        /**
+         * Instantiates a new Adapter.
+         *
+         * @param fm the fm
+         */
+        Adapter(FragmentManager fm) {
             super(fm);
         }
 
-        public void addFragment(Fragment fragment, String title) {
+        /**
+         * Add fragment.
+         *
+         * @param fragment the fragment
+         * @param title    the title
+         */
+        void addFragment(Fragment fragment, String title) {
             mFragments.add(fragment);
             mFragmentTitles.add(title);
         }
 
+        /**
+         * Gets item.
+         *
+         * @param position the position
+         * @return the item
+         */
         @Override
         public Fragment getItem(int position) {
             return mFragments.get(position);
         }
 
+        /**
+         * Gets count.
+         *
+         * @return the count
+         */
         @Override
         public int getCount() {
             return mFragments.size();
         }
 
+        /**
+         * Gets page title.
+         *
+         * @param position the position
+         * @return the page title
+         */
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitles.get(position);

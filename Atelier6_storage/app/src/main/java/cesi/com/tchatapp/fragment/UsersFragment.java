@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,27 +12,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.net.URI;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import cesi.com.tchatapp.R;
-import cesi.com.tchatapp.adapter.MessageAdapter;
 import cesi.com.tchatapp.adapter.UserAdapter;
-import cesi.com.tchatapp.helper.JsonParser;
 import cesi.com.tchatapp.helper.NetworkHelper;
-import cesi.com.tchatapp.model.Message;
 import cesi.com.tchatapp.model.User;
 import cesi.com.tchatapp.session.Session;
 import cesi.com.tchatapp.utils.Constants;
 
 /**
- * Created by sca on 06/06/15.
+ * The type Users fragment.
  */
 public class UsersFragment extends Fragment {
 
@@ -42,12 +39,18 @@ public class UsersFragment extends Fragment {
     RecyclerView recyclerView;
     UserAdapter adapter;
 
+    /**
+     * On create view view.
+     *
+     * @param inflater           the inflater
+     * @param container          the container
+     * @param savedInstanceState the saved instance state
+     * @return the view
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View v = inflater.inflate(
-                R.layout.fragment_users, container, false);
+        View v = inflater.inflate(R.layout.fragment_users, container, false);
         recyclerView = (RecyclerView) v.findViewById(R.id.users_list);
         swipeLayout = (SwipeRefreshLayout) v.findViewById(R.id.users_swiperefresh);
         setupRefreshLayout();
@@ -55,6 +58,9 @@ public class UsersFragment extends Fragment {
         return v;
     }
 
+    /**
+     * On resume.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -107,50 +113,86 @@ public class UsersFragment extends Fragment {
     }
 
     /**
-     * AsyncTask for sign-in
+     * The type Get users async task.
      */
     protected class GetUsersAsyncTask extends AsyncTask<String, Void, List<User>> {
 
         private final Context context;
 
-        public GetUsersAsyncTask(Context ctx){
+        /**
+         * Instantiates a new Get users async task.
+         *
+         * @param ctx the ctx
+         */
+        GetUsersAsyncTask(Context ctx) {
             this.context = ctx;
         }
 
+        /**
+         * Do in background list.
+         *
+         * @param params the params
+         * @return the list
+         */
         @Override
         protected List<User> doInBackground(String... params) {
             if (!NetworkHelper.isInternetAvailable(context)) {
                 return null;
             }
 
-            try {
-                //then create an httpClient.
-                HttpClient client = new DefaultHttpClient();
-                HttpGet request = new HttpGet();
-                request.setURI(URI.create(context.getString(R.string.url_users)));
-                request.setHeader("token", Session.token);
-                // do request.
-                HttpResponse httpResponse = client.execute(request);
-                String response = null;
+            InputStream inputStream = null;
 
-                //Store response
-                if (httpResponse.getEntity() != null) {
-                    response = EntityUtils.toString(httpResponse.getEntity());
+            try {
+                URL url = new URL(UsersFragment.this.getString(R.string.url_users));
+                Log.d("Calling URL", url.toString());
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                //set authorization header
+                conn.setRequestProperty("X-secure-Token", Session.token);
+                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                int response = conn.getResponseCode();
+                Log.d("TchatActivity", "The response code is: " + response);
+
+                inputStream = conn.getInputStream();
+                String contentAsString;
+                if (response == 200) {
+                    List<User> listOfUsers = new ArrayList<>();
+                    // Convert the InputStream into a string
+                    contentAsString = NetworkHelper.readIt(inputStream);
+                    JSONArray users = new JSONArray(contentAsString);
+                    Log.i(Constants.TAG, contentAsString);
+                    for (int i = 0; i < users.length(); i++) {
+                        JSONObject u = users.getJSONObject(i);
+                        listOfUsers.add(new User(u.getString("username")));
+                    }
+                    Log.i(Constants.TAG, listOfUsers.toString());
+                    return listOfUsers;
                 }
-                Log.d(Constants.TAG, "received for url: " + request.getURI() + " return code: " + httpResponse
-                        .getStatusLine()
-                        .getStatusCode());
-                if (httpResponse.getStatusLine().getStatusCode() != 200) {
-                    //error happened
-                    return null;
-                }
-                return JsonParser.getUsers(response);
-            } catch (Exception e) {
-                Log.d(Constants.TAG, "Error occured in your AsyncTask : ", e);
                 return null;
+                // Makes sure that the InputStream is closed after the app is
+                // finished using it.
+            } catch (Exception e) {
+                Log.e("NetworkHelper", e.getMessage());
+                return null;
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Log.e("NetworkHelper", e.getMessage());
+                    }
+                }
             }
         }
 
+        /**
+         * On post execute.
+         *
+         * @param users the users
+         */
         @Override
         public void onPostExecute(final List<User> users) {
             if (users != null) {

@@ -3,14 +3,14 @@ package cesi.com.tchatapp.database.messages;
 import android.provider.BaseColumns;
 
 /**
- * Created by sca on 30/06/15.
+ * The type Messages db.
  */
 public class MessagesDB {
 
     /**
      * sql request to delete entries
      */
-    public static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + MessageEntry.TABLE_NAME;
+    public static final String SQL_DELETE_ENTRIES = "DELETE FROM " + MessageEntry.TABLE_NAME;
 
     private static final String TEXT_TYPE = " TEXT";
 
@@ -35,17 +35,18 @@ public class MessagesDB {
     private MessagesDB() {
     }
 
-    /* Inner class that defines the table contents */
-    public abstract static class MessageEntry implements BaseColumns {
+    /**
+     * The type Message entry.
+     */
+/* Inner class that defines the table contents */
+    abstract static class MessageEntry implements BaseColumns {
 
-        public static final String TABLE_NAME = "messages";
+        static final String TABLE_NAME = "messages";
 
-        public static final String COLUMN_MESSAGE = "message";
+        static final String COLUMN_MESSAGE = "message";
 
-        public static final String COLUMN_DATE = "date";
+        static final String COLUMN_DATE = "date";
 
-        public static final String COLUMN_USER = "user";
-
-
+        static final String COLUMN_USER = "user";
     }
 }

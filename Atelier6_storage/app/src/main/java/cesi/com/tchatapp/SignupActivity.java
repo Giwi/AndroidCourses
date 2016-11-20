@@ -2,7 +2,6 @@ package cesi.com.tchatapp;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,32 +11,33 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import cesi.com.tchatapp.helper.NetworkHelper;
-import cesi.com.tchatapp.utils.Constants;
 
 /**
- * Created by sca on 02/06/15.
+ * The type Signup activity.
  */
 public class SignupActivity extends Activity {
 
     EditText username;
     EditText pwd;
+    EditText name;
+    EditText firstname;
     ProgressBar pg;
     Button btn;
 
+    /**
+     * On create.
+     *
+     * @param savedInstance the saved instance
+     */
     @Override
     public void onCreate(Bundle savedInstance){
         super.onCreate(savedInstance);
@@ -45,13 +45,19 @@ public class SignupActivity extends Activity {
         username = (EditText) findViewById(R.id.signup_username);
         pwd = (EditText) findViewById(R.id.signup_pwd);
         pg = (ProgressBar) findViewById(R.id.signup_pg);
+        name = (EditText) findViewById(R.id.signup_name);
+        firstname = (EditText) findViewById(R.id.signup_firstname);
 
         btn = (Button) findViewById(R.id.signup_btn);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loading(true);
-                new SignupAsyncTask(v.getContext()).execute();
+                new SignupAsyncTask(v.getContext()).execute(
+                        username.getText().toString(),
+                        pwd.getText().toString(),
+                        name.getText().toString(),
+                        firstname.getText().toString());
             }
         });
     }
@@ -69,58 +75,79 @@ public class SignupActivity extends Activity {
     /**
      * AsyncTask for sign-in
      */
-    protected class SignupAsyncTask extends AsyncTask<Void, Void, String> {
-
+    protected class SignupAsyncTask extends AsyncTask<String, Void, Integer> {
         Context context;
 
-        public SignupAsyncTask(final Context context) {
+        /**
+         * Instantiates a new Signup async task.
+         *
+         * @param context the context
+         */
+        SignupAsyncTask(final Context context) {
             this.context = context;
         }
 
+        /**
+         * Do in background integer.
+         *
+         * @param params the params
+         * @return the integer
+         */
         @Override
-        protected String doInBackground(Void... params) {
+        protected Integer doInBackground(String... params) {
             if(!NetworkHelper.isInternetAvailable(context)){
-                return "Internet not available";
+                //error
+                return 404;
             }
-
+            InputStream inputStream = null;
             try {
-                //then create an httpClient.
-                HttpClient client = new DefaultHttpClient();
-                HttpPost request = new HttpPost();
-                request.setURI(URI.create(context.getString(R.string.url_signup)));
-
-                List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-                pairs.add(new BasicNameValuePair("username", username.getText().toString()));
-                pairs.add(new BasicNameValuePair("pwd", pwd.getText().toString()));
-                //set entity
-                request.setEntity(new UrlEncodedFormEntity(pairs));
-
-                // do request.
-                HttpResponse httpResponse = client.execute(request);
-                String response = null;
-
-                //Store response
-                if (httpResponse.getEntity() != null) {
-                    response = EntityUtils.toString(httpResponse.getEntity());
+                URL url = new URL(context.getString(R.string.url_signup));
+                Log.d("Calling URL", url.toString());
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                JSONObject register = new JSONObject()
+                        .put("username", params[0])
+                        .put("password", params[1])
+                        .put("name", params[2])
+                        .put("firstname", params[3]);
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("PUT");
+                conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                // Starts the query
+                // Send post request
+                conn.setDoOutput(true);
+                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                wr.write(register.toString().getBytes("UTF-8"));
+                wr.flush();
+                wr.close();
+                return conn.getResponseCode();
+                // Makes sure that the InputStream is closed after the app is
+                // finished using it.
+            } catch (Exception e) {
+                Log.e("NetworkHelper", e.getMessage());
+                return null;
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Log.e("NetworkHelper", e.getMessage());
+                    }
                 }
-                Log.d(Constants.TAG, "received for url: " + request.getURI() + " return code: " + httpResponse
-                        .getStatusLine()
-                        .getStatusCode());
-                if(httpResponse.getStatusLine().getStatusCode() != 200){
-                    //error happened
-                    return null;
-                }
-                return response;
-            } catch (Exception e){
-                Log.d(Constants.TAG, "Error occured in your AsyncTask : ", e);
-                return "an error occured";
             }
         }
 
+        /**
+         * On post execute.
+         *
+         * @param response the response
+         */
         @Override
-        public void onPostExecute(final String token){
+        public void onPostExecute(final Integer response){
             loading(false);
-            if(token != null){
+            if(response == 200){
                 SignupActivity.this.finish();
             } else {
                 Toast.makeText(context, context.getString(R.string.error_signup), Toast.LENGTH_LONG).show();

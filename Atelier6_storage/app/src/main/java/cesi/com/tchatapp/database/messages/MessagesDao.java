@@ -11,8 +11,10 @@ import java.util.List;
 import cesi.com.tchatapp.database.DatabaseHelper;
 import cesi.com.tchatapp.model.Message;
 
+import static cesi.com.tchatapp.database.messages.MessagesDB.SQL_DELETE_ENTRIES;
+
 /**
- * Created by sca on 30/06/15.
+ * The type Messages dao.
  */
 public class MessagesDao {
 
@@ -21,14 +23,22 @@ public class MessagesDao {
      */
     private DatabaseHelper mDbHelper = null;
 
+    /**
+     * Instantiates a new Messages dao.
+     *
+     * @param context the context
+     */
     public MessagesDao(final Context context) {
         mDbHelper = new DatabaseHelper(context);
     }
 
     /**
      * Write a new message.
+     *
+     * @param db  the db
+     * @param msg the msg
      */
-    public void writeMessage(final SQLiteDatabase db, final Message msg) {
+    private void writeMessage(final SQLiteDatabase db, final Message msg) {
 
         // Create a new map of values, where column names are the keys
         final ContentValues values = new ContentValues();
@@ -39,10 +49,16 @@ public class MessagesDao {
         db.insert(MessagesDB.MessageEntry.TABLE_NAME, null, values);
     }
 
+    /**
+     * Write messages.
+     *
+     * @param messages the messages
+     */
     public void writeMessages(List<Message> messages) {
         // Gets the data repository in write mode
         final SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        for (Message msg: messages) {
+        db.execSQL(SQL_DELETE_ENTRIES);
+        for (Message msg : messages) {
             // insert
             writeMessage(db, msg);
         }
@@ -52,6 +68,8 @@ public class MessagesDao {
 
     /**
      * retrieve all registered messages.
+     *
+     * @return the list
      */
     public List<Message> readMessages() {
         final SQLiteDatabase db = mDbHelper.getReadableDatabase();
@@ -78,12 +96,6 @@ public class MessagesDao {
         return messages;
     }
 
-    /**
-     * Transform cursor to messages
-     *
-     * @param cursor
-     * @return
-     */
     private List<Message> cursorToMessages(Cursor cursor) {
         final List<Message> msgs = new LinkedList<Message>();
         cursor.moveToFirst();
@@ -94,12 +106,6 @@ public class MessagesDao {
         return msgs;
     }
 
-    /**
-     * Transform to Message
-     *
-     * @param cursor
-     * @return
-     */
     private Message cursorToMessage(Cursor cursor) {
         return new Message(
                 cursor.getString(cursor.getColumnIndex(MessagesDB.MessageEntry.COLUMN_USER)),

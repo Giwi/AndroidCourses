@@ -14,36 +14,74 @@ import cesi.com.tchatapp.R;
 import cesi.com.tchatapp.model.User;
 
 /**
- * Created by sca on 07/06/15.
+ * The type User adapter.
  */
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 
-    List<User> users;
-    Context context;
+    private List<User> users;
+    private Context context;
 
+    /**
+     * Instantiates a new User adapter.
+     *
+     * @param ctx the ctx
+     */
     public UserAdapter(Context ctx){
         this.context = ctx;
     }
 
+    /**
+     * Set user.
+     *
+     * @param users the users
+     */
     public void setUser(List<User> users){
         this.users = users;
         notifyDataSetChanged();
     }
 
 
+    /**
+     * On create view holder user adapter . view holder.
+     *
+     * @param parent   the parent
+     * @param viewType the view type
+     * @return the user adapter . view holder
+     */
     @Override
     public UserAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = ((Activity) context).getLayoutInflater();
         View convertView = inflater.inflate(R.layout.item_user, parent, false);
-        ViewHolder vh = new ViewHolder(convertView);
-        return vh;
+        return new ViewHolder(convertView);
     }
 
+    /**
+     * On bind view holder.
+     *
+     * @param vh       the vh
+     * @param position the position
+     */
     @Override
     public void onBindViewHolder(UserAdapter.ViewHolder vh, int position) {
         vh.username.setText(users.get(position).getUsername());
     }
 
+    /**
+     * Gets item id.
+     *
+     * @param position the position
+     * @return the item id
+     */
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    /**
+     * Gets item count.
+     *
+     * @return the item count
+     */
     @Override
     public int getItemCount() {
         if(users == null){
@@ -52,10 +90,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         return users.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    /**
+     * The type View holder.
+     */
+    static class ViewHolder extends RecyclerView.ViewHolder{
         TextView username;
 
-        public ViewHolder(final View itemView) {
+        /**
+         * Instantiates a new View holder.
+         *
+         * @param itemView the item view
+         */
+        ViewHolder(final View itemView) {
             super(itemView);
             username = (TextView) itemView.findViewById(R.id.user_name);
         }

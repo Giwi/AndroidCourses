@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/tchat_refresh"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/tchat_refresh"
         android:icon="@android:drawable/ic_menu_help"
-        android:title="@string/settings"
-        android:showAsAction="always"/>
+        app:showAsAction="always"
+        android:title="@string/settings" />
 
-    <item android:id="@+id/tchat_disconnect"
+    <item
+        android:id="@+id/tchat_disconnect"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="@string/disconnect"
-        android:showAsAction="always"/>
+        app:showAsAction="always"
+        android:title="@string/disconnect" />
 
 </menu>

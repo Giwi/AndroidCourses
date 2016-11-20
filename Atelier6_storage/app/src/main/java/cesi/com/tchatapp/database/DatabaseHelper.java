@@ -7,23 +7,41 @@ import android.database.sqlite.SQLiteOpenHelper;
 import cesi.com.tchatapp.database.messages.MessagesDB;
 
 /**
- * Created by sca on 30/06/15.
+ * The type Database helper.
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 1;
 
-    public static final String DATABASE_NAME = "tchatApp.db";
+    private static final String DATABASE_NAME = "tchatApp.db";
 
+    /**
+     * Instantiates a new Database helper.
+     *
+     * @param context the context
+     */
     public DatabaseHelper(final Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    /**
+     * On create.
+     *
+     * @param db the db
+     */
+    @Override
     public void onCreate(final SQLiteDatabase db) {
         db.execSQL(MessagesDB.SQL_CREATE_ENTRIES);
     }
 
+    /**
+     * On upgrade.
+     *
+     * @param sqLiteDatabase the sq lite database
+     * @param i              the
+     * @param i2             the 2
+     */
     @Override
     public void onUpgrade(final SQLiteDatabase sqLiteDatabase, final int i, final int i2) {
         //DO NOTHING for now
