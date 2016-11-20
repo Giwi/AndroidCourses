@@ -16,12 +16,12 @@
     <string name="settings">Settings</string>
     <string name="validate">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="url_signin">http://192.168.60.45:8080/api/1/user/login</string>
-    <string name="url_signup">http://192.168.60.45:8080/api/1/user/register</string>
-    <string name="url_msg">http://192.168.60.45:8080/api/1/private/message</string>
+    <string name="url_signin">http://vps288382.ovh.net/api/1/user/login</string>
+    <string name="url_signup">http://vps288382.ovh.net/api/1/user/register</string>
+    <string name="url_msg">http://vps288382.ovh.net/api/1/private/message</string>
     <string name="disconnect">Disconnect</string>
     <string name="users">users</string>
-    <string name="url_users">http://192.168.60.45:8080/api/1/private/user/list</string>
+    <string name="url_users">http://vps288382.ovh.net/api/1/private/user/list</string>
     <string name="navigation_drawer_open">open</string>
     <string name="navigation_drawer_close">close</string>
     <string name="url_photo">Url to a photo</string>
