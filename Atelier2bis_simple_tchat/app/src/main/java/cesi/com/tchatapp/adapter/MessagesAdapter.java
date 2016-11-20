@@ -18,23 +18,38 @@ import cesi.com.tchatapp.helper.DateHelper;
 import cesi.com.tchatapp.model.Message;
 
 /**
- * Created by sca on 02/06/15.
+ * The type Messages adapter.
  */
 public class MessagesAdapter extends BaseAdapter {
 
     private final Context context;
 
+    /**
+     * Instantiates a new Messages adapter.
+     *
+     * @param ctx the ctx
+     */
     public MessagesAdapter(Context ctx){
         this.context = ctx;
     }
 
     List<Message> messages = new LinkedList<>();
 
+    /**
+     * Add message.
+     *
+     * @param messages the messages
+     */
     public void addMessage(List<Message> messages){
         this.messages = messages;
         this.notifyDataSetChanged();
     }
 
+    /**
+     * Gets count.
+     *
+     * @return the count
+     */
     @Override
     public int getCount() {
         if(messages == null){
@@ -43,16 +58,36 @@ public class MessagesAdapter extends BaseAdapter {
         return messages.size();
     }
 
+    /**
+     * Gets item.
+     *
+     * @param position the position
+     * @return the item
+     */
     @Override
     public Message getItem(int position) {
         return messages.get(position);
     }
 
+    /**
+     * Gets item id.
+     *
+     * @param position the position
+     * @return the item id
+     */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
+    /**
+     * Gets view.
+     *
+     * @param position    the position
+     * @param convertView the convert view
+     * @param parent      the parent
+     * @return the view
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder vh;

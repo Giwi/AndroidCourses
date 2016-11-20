@@ -123,7 +123,7 @@ public class TchatActivity extends ActionBarActivity {
     }
 
     /**
-     * AsyncTask for sign-in
+     * The type Send message async task.
      */
     protected class SendMessageAsyncTask extends AsyncTask<String, Void, Integer> {
 
@@ -190,7 +190,7 @@ public class TchatActivity extends ActionBarActivity {
     }
 
     /**
-     * AsyncTask for sign-in
+     * The type Get messages async task.
      */
     protected class GetMessagesAsyncTask extends AsyncTask<String, Void, List<Message>> {
 

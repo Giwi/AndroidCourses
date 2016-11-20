@@ -5,9 +5,9 @@ package cesi.com.tchatapp.model;
  */
 public class Message {
 
-    long date;
-    String username;
-    String msg;
+    private long date;
+    private String username;
+    private String msg;
 
     /**
      * Instantiates a new Message.

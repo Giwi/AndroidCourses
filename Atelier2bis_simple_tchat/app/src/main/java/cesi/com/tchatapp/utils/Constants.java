@@ -1,13 +1,10 @@
 package cesi.com.tchatapp.utils;
 
 /**
- * Created by sca on 02/06/15.
+ * The type Constants.
  */
 public class Constants {
-
     public static final String TAG = "TchatApp";
-
-    public static final String INTENT_TOKEN = "TchatApp";
-
-
+    public static final String INTENT_TOKEN = "x-secure-token";
+    public static final String INTENT_USER_ID = "user_id";
 }
