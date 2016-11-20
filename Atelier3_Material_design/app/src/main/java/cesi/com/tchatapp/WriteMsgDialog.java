@@ -38,13 +38,11 @@ public class WriteMsgDialog extends DialogFragment {
      */
     static WriteMsgDialog getInstance(final String token, final String userId) {
         WriteMsgDialog f = new WriteMsgDialog();
-
         // Supply num input as an argument.
         Bundle args = new Bundle();
         args.putString("token", token);
         args.putString("user_id", userId);
         f.setArguments(args);
-
         return f;
     }
 

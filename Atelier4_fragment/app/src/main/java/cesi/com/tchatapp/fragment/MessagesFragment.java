@@ -12,25 +12,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.net.URI;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import cesi.com.tchatapp.R;
 import cesi.com.tchatapp.adapter.MessageAdapter;
-import cesi.com.tchatapp.helper.JsonParser;
 import cesi.com.tchatapp.helper.NetworkHelper;
 import cesi.com.tchatapp.model.Message;
 import cesi.com.tchatapp.session.Session;
 import cesi.com.tchatapp.utils.Constants;
 
 /**
- * Created by sca on 06/06/15.
+ * The type Messages fragment.
  */
 public class MessagesFragment extends Fragment {
 
@@ -39,12 +38,18 @@ public class MessagesFragment extends Fragment {
     RecyclerView recyclerView;
     MessageAdapter adapter;
 
+    /**
+     * On create view view.
+     *
+     * @param inflater           the inflater
+     * @param container          the container
+     * @param savedInstanceState the saved instance state
+     * @return the view
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState){
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View v = inflater.inflate(
-                R.layout.fragment_messages, container, false);
+        View v = inflater.inflate(R.layout.fragment_messages, container, false);
         recyclerView = (RecyclerView) v.findViewById(R.id.messages_list);
         swipeLayout = (SwipeRefreshLayout) v.findViewById(R.id.messages_swiperefresh);
         setupRefreshLayout();
@@ -52,8 +57,11 @@ public class MessagesFragment extends Fragment {
         return v;
     }
 
+    /**
+     * On resume.
+     */
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         loading();
     }
@@ -86,7 +94,7 @@ public class MessagesFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         adapter = new MessageAdapter(this.getActivity());
         recyclerView.setAdapter(adapter);
-        
+
         // Add this. 
         // Two scroller could have problem. 
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -104,53 +112,77 @@ public class MessagesFragment extends Fragment {
     }
 
     /**
-     * AsyncTask for sign-in
+     * The type Get messages async task.
      */
     protected class GetMessagesAsyncTask extends AsyncTask<String, Void, List<Message>> {
 
         Context context;
 
-        public GetMessagesAsyncTask(final Context context) {
+        /**
+         * Instantiates a new Get messages async task.
+         *
+         * @param context the context
+         */
+        GetMessagesAsyncTask(final Context context) {
             this.context = context;
         }
 
+        /**
+         * Do in background list.
+         *
+         * @param params the params
+         * @return the list
+         */
         @Override
         protected List<Message> doInBackground(String... params) {
-            if(!NetworkHelper.isInternetAvailable(context)){
+            if (!NetworkHelper.isInternetAvailable(context)) {
                 return null;
             }
 
+            InputStream inputStream;
             try {
-                //then create an httpClient.
-                HttpClient client = new DefaultHttpClient();
-                HttpGet request = new HttpGet();
-                request.setURI(URI.create(context.getString(R.string.url_msg)));
-                request.setHeader("token", Session.token);
-                // do request.
-                HttpResponse httpResponse = client.execute(request);
-                String response = null;
+                URL url = new URL(context.getString(R.string.url_msg));
+                Log.d("Calling URL", url.toString());
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("GET");
+                conn.setDoInput(true);
+                //set authorization header
+                conn.setRequestProperty("X-secure-Token", Session.token);
+                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                int response = conn.getResponseCode();
+                Log.d("TchatActivity", "The response code is: " + response);
 
-                //Store response
-                if (httpResponse.getEntity() != null) {
-                    response = EntityUtils.toString(httpResponse.getEntity());
+                inputStream = conn.getInputStream();
+                String contentAsString;
+                if (response == 200) {
+                    List<Message> listOfMessages = new ArrayList<>();
+                    // Convert the InputStream into a string
+                    contentAsString = NetworkHelper.readIt(inputStream);
+                    JSONArray mess = new JSONArray(contentAsString);
+                    for (int i = 0; i < mess.length(); i++) {
+                        JSONObject m = mess.getJSONObject(i);
+                        Log.i("message", m.toString());
+                        listOfMessages.add(new Message(m.getJSONObject("author").getString("username"), m.getString("content"), m.getLong("date")));
+                    }
+                    return listOfMessages;
                 }
-                Log.d(Constants.TAG, "received for url: " + request.getURI() + " return code: " + httpResponse
-                        .getStatusLine()
-                        .getStatusCode());
-                if(httpResponse.getStatusLine().getStatusCode() != 200){
-                    //error happened
-                    return null;
-                }
-                return JsonParser.getMessages(response);
-            } catch (Exception e){
+                return null;
+            } catch (Exception e) {
                 Log.d(Constants.TAG, "Error occured in your AsyncTask : ", e);
                 return null;
             }
         }
 
+        /**
+         * On post execute.
+         *
+         * @param msgs the msgs
+         */
         @Override
-        public void onPostExecute(final List<Message> msgs){
-            if(msgs != null) {
+        public void onPostExecute(final List<Message> msgs) {
+            if (msgs != null) {
                 adapter.addMessage(msgs);
             }
             swipeLayout.setRefreshing(false);

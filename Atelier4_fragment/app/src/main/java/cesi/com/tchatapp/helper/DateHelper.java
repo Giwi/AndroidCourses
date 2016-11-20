@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by sca on 03/06/15.
+ * The type Date helper.
  */
 public class DateHelper {
 
@@ -14,13 +14,15 @@ public class DateHelper {
 
     /**
      * create formatted date from timestamp.
-     * @param timestamp
-     * @return
+     *
+     * @param timestamp the timestamp
+     * @return formatted date
+     * @throws ParseException the parse exception
      */
     public static String getFormattedDate(long timestamp) throws ParseException {
         if(formatter == null){
             formatter = new SimpleDateFormat(format);
         }
-        return formatter.format(new Date(timestamp)).toString();
+        return formatter.format(new Date(timestamp));
     }
 }

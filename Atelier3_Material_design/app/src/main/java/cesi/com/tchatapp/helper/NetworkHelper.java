@@ -43,11 +43,10 @@ public class NetworkHelper {
      *
      * @param stream the stream
      * @return the string
-     * @throws IOException                  the io exception
-     * @throws UnsupportedEncodingException the unsupported encoding exception
+     * @throws IOException the io exception
      */
 // Reads an InputStream and converts it to a String.
-    public static String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
+    public static String readIt(InputStream stream) throws IOException {
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(stream));
         String inputLine;

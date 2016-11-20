@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -43,11 +44,6 @@ public class TchatActivity extends ActionBarActivity {
 
     String token;
     String userId;
-
-    List<Message> messages;
-
-    private LinearLayoutManager mLayoutManager;
-    private Toolbar mToolbar;
     private DrawerLayout mDrawerLayout;
     Timer timer;
     TimerTask task = new TimerTask() {
@@ -92,6 +88,7 @@ public class TchatActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
         setContentView(R.layout.activity_tchat);
+
         token = this.getIntent().getExtras().getString(Constants.INTENT_TOKEN);
         userId = this.getIntent().getExtras().getString(Constants.INTENT_USER_ID);
         if (token == null) {
@@ -101,10 +98,10 @@ public class TchatActivity extends ActionBarActivity {
         listView = (RecyclerView) findViewById(R.id.tchat_list);
         listView.setHasFixedSize(true);
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
         listView.setLayoutManager(mLayoutManager);
 
-        mToolbar = (Toolbar) findViewById(R.id.tchat_toolbar);
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.tchat_toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
@@ -122,11 +119,15 @@ public class TchatActivity extends ActionBarActivity {
         listView.setAdapter(adapter);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null) {
             setupNavigationView(navigationView);
         }
-
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.setDrawerListener(toggle);
+        toggle.syncState();
         new GetMessagesAsyncTask(this).execute();
     }
 
