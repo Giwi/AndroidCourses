@@ -12,12 +12,12 @@
     <string name="register">Signup</string>
     <string name="error_no_token">No token. Can\'t display activity</string>
     <string name="settings">Settings</string>
-    <string name="validate">Ok</string>
+    <string name="validate">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="url_signin">https://cesi-giwisoft.rhcloud.com/signin</string>
-    <string name="url_signup">https://cesi-giwisoft.rhcloud.com/signup</string>
-    <string name="url_msg" >https://cesi-giwisoft.rhcloud.com/messages</string>
+    <string name="url_signin">http://vps288382.ovh.net/api/1/user/login</string>
+    <string name="url_signup">http://vps288382.ovh.net/api/1/user/register</string>
+    <string name="url_msg" >http://vps288382.ovh.net/api/1/private/message</string>
     <string name="disconnect">Disconnect</string>
     <string name="users">users</string>
-    <string name="url_users">https://cesi-giwisoft.rhcloud.com/users</string>
+    <string name="url_users">http://vps288382.ovh.net/api/1/private/user</string>
 </resources>
