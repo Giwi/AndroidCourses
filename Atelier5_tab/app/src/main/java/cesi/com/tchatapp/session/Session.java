@@ -1,9 +1,10 @@
 package cesi.com.tchatapp.session;
 
 /**
- * Created by sca on 07/06/15.
+ * The type Session.
  */
 public class Session {
 
     public static String token;
+    public static String userId;
 }

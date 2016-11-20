@@ -14,40 +14,47 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import cesi.com.tchatapp.R;
-import cesi.com.tchatapp.utils.Constants;
 
 /**
- * Created by sca on 04/06/15.
+ * The type Write msg dialog.
  */
 public class WriteMsgDialog extends DialogFragment {
 
     private EditText message;
 
-    public static WriteMsgDialog getInstance(final String token) {
+    /**
+     * Gets instance.
+     *
+     * @param token  the token
+     * @param userId the user id
+     * @return the instance
+     */
+    public static WriteMsgDialog getInstance(final String token, final String userId) {
         WriteMsgDialog f = new WriteMsgDialog();
-
         // Supply num input as an argument.
         Bundle args = new Bundle();
         args.putString("token", token);
+        args.putString("user_id", userId);
         f.setArguments(args);
-
         return f;
     }
 
 
+    /**
+     * On create dialog dialog.
+     *
+     * @param savedInstanceState the saved instance state
+     * @return the dialog
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -91,46 +98,73 @@ public class WriteMsgDialog extends DialogFragment {
     }
 
     /**
-     * AsyncTask for sign-in
+     * The type Send message async task.
      */
     protected class SendMessageAsyncTask extends AsyncTask<String, Void, Integer> {
 
         Context context;
 
-        public SendMessageAsyncTask(final Context context) {
+        /**
+         * Instantiates a new Send message async task.
+         *
+         * @param context the context
+         */
+        SendMessageAsyncTask(final Context context) {
             this.context = context;
         }
 
+        /**
+         * Do in background integer.
+         *
+         * @param params the params
+         * @return the integer
+         */
         @Override
         protected Integer doInBackground(String... params) {
+            InputStream inputStream = null;
+
             try {
-                //then create an httpClient.
-                HttpClient client = new DefaultHttpClient();
-                HttpPost request = new HttpPost();
-                request.setURI(URI.create(context.getString(R.string.url_msg)));
-                request.setHeader("token", getArguments().getString("token"));
-
-                List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-                pairs.add(new BasicNameValuePair("message", params[0]));
-                //set entity
-                request.setEntity(new UrlEncodedFormEntity(pairs, "UTF-8"));
-
-                // do request.
-                HttpResponse httpResponse = client.execute(request);
-
-                Log.d(Constants.TAG, "received for url: " + request.getURI() + " return code: " + httpResponse
-                        .getStatusLine()
-                        .getStatusCode());
-
-                return httpResponse
-                        .getStatusLine()
-                        .getStatusCode();
+                URL url = new URL(WriteMsgDialog.this.getString(R.string.url_msg));
+                Log.d("Calling URL", url.toString());
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                //set authorization header
+                conn.setRequestProperty("X-secure-Token", getArguments().getString("token"));
+                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                JSONObject message = new JSONObject()
+                        .put("user_id", getArguments().getString("user_id"))
+                        .put("content", params[0]);
+                conn.setReadTimeout(10000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                // Starts the query
+                // Send post request
+                conn.setDoOutput(true);
+                DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+                wr.write(message.toString().getBytes("UTF-8"));
+                wr.flush();
+                wr.close();
+                return conn.getResponseCode();
             } catch (Exception e) {
-                Log.d(Constants.TAG, "Error occured in your AsyncTask : ", e);
-                return 500;
+                Log.e("NetworkHelper", e.getMessage());
+                return null;
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        Log.e("NetworkHelper", e.getMessage());
+                    }
+                }
             }
         }
 
+        /**
+         * On post execute.
+         *
+         * @param status the status
+         */
         @Override
         public void onPostExecute(Integer status) {
             if (status != 200) {

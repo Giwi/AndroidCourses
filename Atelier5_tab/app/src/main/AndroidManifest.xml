@@ -1,28 +1,27 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="cesi.com.tchatapp">
-
-    <application android:allowBackup="true" android:label="@string/app_name"
-        android:icon="@mipmap/ic_launcher" android:theme="@style/Theme.TchatApp">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cesi.com.tchatapp">
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.TchatApp">
 
         <activity
-            android:name="cesi.com.notes.SigninActivity"
+            android:name="cesi.com.tchatapp.SigninActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.TchatApp"
-            android:windowSoftInputMode="stateHidden"
-            android:screenOrientation="portrait">
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="cesi.com.notes.SignupActivity"/>
-        <activity
-            android:name="cesi.com.notes.DrawerActivity"/>
+        <activity android:name="cesi.com.tchatapp.SignupActivity" />
+        <activity android:name="cesi.com.tchatapp.DrawerActivity" />
 
 
     </application>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-
 </manifest>

@@ -36,6 +36,7 @@
                 android:text="@string/tchat" />
 
             <fragment
+                android:id="@+id/messages"
                 class="cesi.com.tchatapp.fragment.MessagesFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -53,6 +54,7 @@
                 android:text="@string/users" />
 
             <fragment
+                android:id="@+id/users"
                 class="cesi.com.tchatapp.fragment.UsersFragment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />

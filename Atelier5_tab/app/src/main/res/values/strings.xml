@@ -1,29 +1,30 @@
 <resources>
-    <string name="app_name">noteApp</string>
+    <string name="app_name">TchatApp</string>
     <string name="username_hint">Your username</string>
     <string name="pwd_hint">Your password</string>
     <string name="connection">Connection</string>
-    <string name="url_signin">https://cesi-giwisoft.rhcloud.com/https://cesi-giwisoft.rhcloud.com/signin</string>
-    <string name="url_signup">https://cesi-giwisoft.rhcloud.com/signup</string>
-    <string name="url_msg" >https://cesi-giwisoft.rhcloud.com/messages</string>
-    <string name="url_notes" >https://cesi-giwisoft.rhcloud.com/notes</string>
-    <string name="url_users" >https://cesi-giwisoft.rhcloud.com/users</string>
-
-
     <string name="error_login">Login failed. Please check your login and password</string>
     <string name="error_signup">Signup failed</string>
-    <string name="note_message">Your Note</string>
-    <string name="note">Messages</string>
-    <string name="users">Users</string>
-
+    <string name="tchat_message">Your message</string>
     <string name="error_missing_msg">Missing message</string>
     <string name="error_send_msg">Error sending message</string>
     <string name="refresh">Refresh</string>
     <string name="register">Signup</string>
+    <string name="name_hint">Name</string>
+    <string name="firstname_hint">Firstname</string>
     <string name="error_no_token">No token. Can\'t display activity</string>
     <string name="settings">Settings</string>
-    <string name="validate">Ok</string>
+    <string name="validate">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="url_signin">http://192.168.60.45:8080/api/1/user/login</string>
+    <string name="url_signup">http://192.168.60.45:8080/api/1/user/register</string>
+    <string name="url_msg">http://192.168.60.45:8080/api/1/private/message</string>
     <string name="disconnect">Disconnect</string>
+    <string name="users">users</string>
+    <string name="url_users">http://192.168.60.45:8080/api/1/private/user/list</string>
+    <string name="navigation_drawer_open">open</string>
+    <string name="navigation_drawer_close">close</string>
+    <string name="note">Messages</string>
     <string name="url_photo">Url to a photo</string>
+    <string name="tchat">Chat</string>
 </resources>
