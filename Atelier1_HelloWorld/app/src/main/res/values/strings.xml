@@ -2,5 +2,5 @@
     <string name="app_name">HelloWorld</string>
     <string name="your_text">Your text</string>
     <string name="button">Send</string>
-    <string name="url_hello">http://cesi.cleverapps.com/hello</string>
+    <string name="url_hello">http://vps288382.ovh.net/api/1/hello/</string>
 </resources>
